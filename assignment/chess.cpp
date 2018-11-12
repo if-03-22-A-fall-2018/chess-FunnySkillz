@@ -209,7 +209,7 @@
  {
    return squares_share_rank(s1_f, s1_r, s2_f, s2_r) || squares_share_file (s1_f, s1_r, s2_f, s2_r) || squares_share_diagonal(s1_f, s1_r, s2_f, s2_r);
  }
- 
+
  bool squares_share_kings_move (File s1_f, Rank s1_r, File s2_f, Rank s2_r)
  {
    if(s1_f+1==s2_f && s1_r==s2_r)
