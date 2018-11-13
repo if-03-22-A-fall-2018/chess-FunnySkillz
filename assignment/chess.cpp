@@ -14,6 +14,17 @@
  #include "general.h"
  #include "chess.h"
 
+ bool is_move_from_base_line (enum PieceColor color, Rank rank)
+ {
+   if (color == White && rank == 2) {
+     return true;
+   }
+   else if (color == Black && rank == 2) {
+     return true;
+   }
+   return false;
+ }
+
  bool is_square_ok (File file, Rank rank)
  {
    return (file <= 'h') && (file >= 'a') && (rank <= 8) && (rank > 0);
@@ -23,7 +34,7 @@
  {
    return pc.color == color && pc.type == type;
  }
- void 	init_chess_board (ChessBoard chess_board)
+ void init_chess_board (ChessBoard chess_board)
  {
    for (int x = 0; x < 8; x++) {
      for (int y = 0; y < 8; y++) {
@@ -96,6 +107,7 @@
    for(int i = 'a'; i <= 'h'; i++)
    {
      add_piece(chess_board, i, 2, white_pawn);
+     add_piece(chess_board, i, 7, black_pawn);
    }
 
    add_piece(chess_board, 'a', 8 , black_rook);
@@ -106,12 +118,8 @@
    add_piece(chess_board, 'f', 8 , black_bishop);
    add_piece(chess_board, 'g', 8 , black_knight);
    add_piece(chess_board, 'h', 8 , black_rook);
-
-   for(int i = 'a'; i <= 'h'; i++)
-   {
-     add_piece(chess_board, i, 7, black_pawn);
-   }
  }
+
 
  bool remove_piece (ChessBoard chess_board, File file, Rank rank)
  {
@@ -134,7 +142,8 @@
  {
    int file_sum;
    int rank_sum;
-   file_sum=s1_f-s2_f;
+
+   file_sum = s1_f - s2_f;
 
    if(file_sum<0)
    {
@@ -154,7 +163,7 @@
  {
    int file_sum;
    int rank_sum;
-   file_sum=s1_f-s2_f;
+   file_sum = s1_f - s2_f;
 
    if(file_sum<0)
    {
@@ -168,42 +177,39 @@
      rank_sum=rank_sum-rank_sum-rank_sum;
    }
 
-   return is_square_ok(s1_f,s1_r) && is_square_ok(s2_f,s2_r) && file_sum + rank_sum == 3;
+   return is_square_ok(s1_f,s1_r) && is_square_ok(s2_f,s2_r) && file_sum + rank_sum == 3 && !squares_share_file(s1_f, s1_r, s2_f, s2_r);
  }
 
  bool squares_share_pawns_move (enum PieceColor color, enum MoveType move, File s1_f, Rank s1_r, File s2_f, Rank s2_r)
  {
-    if(move==NormalMove && color==White && s1_f==s2_f && s1_r+2 == s2_r && s1_r==2)
-     {
-       return true;
-     }
+   if(move==NormalMove && color==White && s1_f==s2_f && s1_r+2 == s2_r && s1_r==2)
+    {
+          return true;
+    }
+    else if(move==NormalMove && color==White && s1_f==s2_f && s1_r+1 == s2_r && s1_r>1)
+    {
+      return true;
+    }
+    else if(move==CaptureMove && color==White && (s1_f==s2_f+1 || s1_f==s2_f-1) && s1_r+1 == s2_r)
+    {
+      return true;
+    }
 
-     else if(move==NormalMove && color==White && s1_f==s2_f && s1_r+1 == s2_r && s1_r>1)
-     {
-       return true;
-     }
+    else if(move==NormalMove && color==Black && s1_f==s2_f && s1_r-2 == s2_r && s1_r==7)
+    {
+      return true;
+    }
+    else if(move==NormalMove && color==Black && s1_f==s2_f && s1_r-1 == s2_r && s1_r<8)
+    {
+      return true;
+    }
 
-     else if(move==CaptureMove && color==White && (s1_f==s2_f+1 || s1_f==s2_f-1) && s1_r+1 == s2_r)
-     {
-       return true;
-     }
+    else if(move==CaptureMove && color==Black && (s1_f==s2_f+1 || s1_f==s2_f-1) && s1_r-1 == s2_r)
+    {
+      return true;
+    }
 
-     else if(move==NormalMove && color==Black && s1_f==s2_f && s1_r-2 == s2_r && s1_r==7)
-     {
-       return true;
-     }
-
-     else if(move==NormalMove && color==Black && s1_f==s2_f && s1_r-1 == s2_r && s1_r<8)
-     {
-       return true;
-     }
-
-     else if(move==CaptureMove && color==Black && (s1_f==s2_f+1 || s1_f==s2_f-1) && s1_r-1 == s2_r)
-     {
-       return true;
-     }
-
-   return false;
+    return false;
  }
  bool squares_share_queens_move (File s1_f, Rank s1_r, File s2_f, Rank s2_r)
  {
@@ -212,37 +218,11 @@
 
  bool squares_share_kings_move (File s1_f, Rank s1_r, File s2_f, Rank s2_r)
  {
-   if(s1_f+1==s2_f && s1_r==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f-1==s2_f && s1_r==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f==s2_f && s1_r+1==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f==s2_f && s1_r-1==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f+1==s2_f && s1_r+1==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f-1==s2_f && s1_r-1==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f+1==s2_f && s1_r-1==s2_r)
-   {
-     return true;
-   }
-   else if(s1_f-1==s2_f && s1_r+1==s2_r)
-   {
-     return true;
-   }
-   return false;
-  }
+   int x;
+   int y;
+
+   x = s1_r - s2_r;
+   y = s1_f - s2_f;
+
+   return x <= 1 && x >= -1 && y <= 1 && y >= -1 && (x != 0 || y != 0);
+ }
